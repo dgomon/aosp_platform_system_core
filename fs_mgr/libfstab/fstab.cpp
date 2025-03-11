@@ -344,25 +344,38 @@ bool IsDtFstabCompatible() {
     std::string dt_value;
     std::string file_name = GetAndroidDtDir() + "fstab/compatible";
 
+    LINFO << __FUNCTION__ << "(): file_name: " << file_name;
+
     if (ReadDtFile(file_name, &dt_value) && dt_value == "android,fstab") {
         // If there's no status property or its set to "ok" or "okay", then we use the DT fstab.
+        LINFO << __FUNCTION__ << "(): ReadDtFile done";
         std::string status_value;
         std::string status_file_name = GetAndroidDtDir() + "fstab/status";
-        return !ReadDtFile(status_file_name, &status_value) || status_value == "ok" ||
-               status_value == "okay";
+        bool result = !ReadDtFile(status_file_name, &status_value) || status_value == "ok" ||
+                                     status_value == "okay";
+
+        LINFO << __FUNCTION__ << "(): status_value: " << status_value << ", returning " << result;
+        return result;
     }
 
+    LINFO << __FUNCTION__ << "(): returning false";
     return false;
 }
 
 std::string ReadFstabFromDt() {
     if (!is_dt_compatible() || !IsDtFstabCompatible()) {
+        LINFO << __FUNCTION__ << "(): returning empty string";
         return {};
     }
 
     std::string fstabdir_name = GetAndroidDtDir() + "fstab";
+    LINFO << __FUNCTION__ << "(): fstabdir_name: " << fstabdir_name;
+
     std::unique_ptr<DIR, int (*)(DIR*)> fstabdir(opendir(fstabdir_name.c_str()), closedir);
-    if (!fstabdir) return {};
+    if (!fstabdir) {
+        LINFO << __FUNCTION__ << "(): fstabdir empty, returning empty string";
+        return {};
+    };
 
     dirent* dp;
     // Each element in fstab_dt_entries is <mount point, the line format in fstab file>.
@@ -935,11 +948,16 @@ bool InRecovery() {
 bool is_dt_compatible() {
     std::string file_name = android::fs_mgr::GetAndroidDtDir() + "compatible";
     std::string dt_value;
+
+    LINFO << __FUNCTION__ << "(): file_name: " << file_name;
+
     if (android::fs_mgr::ReadDtFile(file_name, &dt_value)) {
         if (dt_value == "android,firmware") {
+            LINFO << __FUNCTION__ << "(): returning true";
             return true;
         }
     }
 
+    LINFO << __FUNCTION__ << "(): returning false";
     return false;
 }
