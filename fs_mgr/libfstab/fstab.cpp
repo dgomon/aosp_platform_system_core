@@ -345,6 +345,12 @@ bool IsDtFstabCompatible() {
     std::string file_name = GetAndroidDtDir() + "fstab/compatible";
 
     LINFO << __FUNCTION__ << "(): file_name: " << file_name;
+    if (ReadDtFile(file_name, &dt_value)) {
+        LINFO << __FUNCTION__ << "(): ReadDtFile done, dt_value: " << dt_value;
+    } else {
+        LINFO << __FUNCTION__ << "(): ReadDtFile failed" << dt_value;
+    }
+
 
     if (ReadDtFile(file_name, &dt_value) && dt_value == "android,fstab") {
         // If there's no status property or its set to "ok" or "okay", then we use the DT fstab.
