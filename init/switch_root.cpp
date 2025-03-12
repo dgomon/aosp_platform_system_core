@@ -75,21 +75,33 @@ void SwitchRoot(const std::string& new_root) {
     LOG(INFO) << "Switching root to '" << new_root << "'";
 
     for (const auto& mount_path : mounts) {
+        LOG(INFO) << "Checkpoint 5.4.1";
+        LOG(INFO) << "Moving mount at '" << mount_path << "' to '" << new_root + mount_path << "'";
         auto new_mount_path = new_root + mount_path;
         mkdir(new_mount_path.c_str(), 0755);
+        LOG(INFO) << "Created directory '" << new_mount_path << "'";
         if (mount(mount_path.c_str(), new_mount_path.c_str(), nullptr, MS_MOVE, nullptr) != 0) {
             PLOG(FATAL) << "Unable to move mount at '" << mount_path << "' to "
                         << "'" << new_mount_path << "'";
+        } else {
+            LOG(INFO) << "Moved mount at '" << mount_path << "' to '" << new_mount_path << "'";
         }
     }
+   LOG(INFO) << "Checkpoint 5.4.2";
+
+    LOG(INFO) << "Chdir to new root '" << new_root << "'";
 
     if (chdir(new_root.c_str()) != 0) {
         PLOG(FATAL) << "Could not chdir to new_root, '" << new_root << "'";
     }
 
+    LOG(INFO) << "Pivot_root to new root '" << new_root << "'";
+
     if (mount(new_root.c_str(), "/", nullptr, MS_MOVE, nullptr) != 0) {
         PLOG(FATAL) << "Unable to move root mount to new_root, '" << new_root << "'";
     }
+
+    LOG(INFO) << "Chroot to new root";
 
     if (chroot(".") != 0) {
         PLOG(FATAL) << "Unable to chroot to new root";
