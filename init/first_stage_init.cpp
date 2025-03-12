@@ -414,8 +414,6 @@ int FirstStageMain(int argc, char** argv) {
         }
     }
 
-    LOG(INFO) << "Checkpoint 1";
-
     auto old_root_dir = std::unique_ptr<DIR, decltype(&closedir)>{opendir("/"), closedir};
     if (!old_root_dir) {
         PLOG(ERROR) << "Could not opendir(\"/\"), not freeing ramdisk";
@@ -442,7 +440,6 @@ int FirstStageMain(int argc, char** argv) {
             LOG(FATAL) << "Failed to load kernel modules";
         }
     }
-    LOG(INFO) << "Checkpoint 2";
     if (module_count > 0) {
         auto module_elapse_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 boot_clock::now() - module_start_time);
@@ -467,8 +464,6 @@ int FirstStageMain(int argc, char** argv) {
         StartConsole(cmdline);
     }
 
-    LOG(INFO) << "Checkpoint 3";
-
     if (access(kBootImageRamdiskProp, F_OK) == 0) {
         std::string dest = GetRamdiskPropForSecondStage();
         std::string dir = android::base::Dirname(dest);
@@ -482,8 +477,6 @@ int FirstStageMain(int argc, char** argv) {
         }
         LOG(INFO) << "Copied ramdisk prop to " << dest;
     }
-
-    LOG(INFO) << "Checkpoint 4";
 
     // If "/force_debuggable" is present, the second-stage init will use a userdebug
     // sepolicy and load adb_debug.prop to allow adb root, if the device is unlocked.
@@ -506,7 +499,7 @@ int FirstStageMain(int argc, char** argv) {
     }
 
     LOG(INFO) << "Checkpoint 5";
-    LOG(INFO) << "cmdline: " << cmdline;
+//    LOG(INFO) << "cmdline: " << cmdline;
     LOG(INFO) << "bootconfig: " << bootconfig;
 
     if (ForceNormalBoot(cmdline, bootconfig)) {
