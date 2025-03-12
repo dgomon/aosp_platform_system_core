@@ -510,14 +510,19 @@ int FirstStageMain(int argc, char** argv) {
     LOG(INFO) << "bootconfig: " << bootconfig;
 
     if (ForceNormalBoot(cmdline, bootconfig)) {
+        LOG(INFO) << "Checkpoint 5.1";
         mkdir("/first_stage_ramdisk", 0755);
+        LOG(INFO) << "Checkpoint 5.2";
         PrepareSwitchRoot();
+        LOG(INFO) << "Checkpoint 5.3";
         // SwitchRoot() must be called with a mount point as the target, so we bind mount the
         // target directory to itself here.
         if (mount("/first_stage_ramdisk", "/first_stage_ramdisk", nullptr, MS_BIND, nullptr) != 0) {
             PLOG(FATAL) << "Could not bind mount /first_stage_ramdisk to itself";
         }
+        LOG(INFO) << "Checkpoint 5.4";
         SwitchRoot("/first_stage_ramdisk");
+        LOG(INFO) << "Checkpoint 5.5";
     }
 
     LOG(INFO) << "Checkpoint 6";
