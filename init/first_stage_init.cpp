@@ -500,7 +500,7 @@ int FirstStageMain(int argc, char** argv) {
 
     LOG(INFO) << "Checkpoint 5";
 //    LOG(INFO) << "cmdline: " << cmdline;
-    LOG(INFO) << "bootconfig: " << bootconfig;
+//    LOG(INFO) << "bootconfig: " << bootconfig;
 
     if (ForceNormalBoot(cmdline, bootconfig)) {
         LOG(INFO) << "Checkpoint 5.1";
