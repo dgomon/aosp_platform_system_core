@@ -239,6 +239,7 @@ Result<std::unique_ptr<FirstStageMount>> FirstStageMount::Create(const std::stri
 }
 
 bool FirstStageMountVBootV2::DoCreateDevices() {
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": enter";
     if (!InitDevices()) return false;
 
     // Mount /metadata before creating logical partitions, since we need to
@@ -313,6 +314,7 @@ void FirstStageMountVBootV2::GetSuperDeviceName(std::set<std::string>* devices) 
 // Found partitions will then be removed from it for the subsequent member
 // function to check which devices are NOT created.
 bool FirstStageMountVBootV2::InitRequiredDevices(std::set<std::string> devices) {
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": enter";
     if (!block_dev_init_.InitDeviceMapper()) {
         return false;
     }
@@ -372,6 +374,7 @@ bool FirstStageMountVBootV2::CreateLogicalPartitions() {
 }
 
 bool FirstStageMountVBootV2::CreateSnapshotPartitions(SnapshotManager* sm) {
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": enter";
     // When COW images are present for snapshots, they are stored on
     // the data partition.
     if (!InitRequiredDevices({"userdata"})) {
