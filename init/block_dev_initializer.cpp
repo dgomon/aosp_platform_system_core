@@ -72,8 +72,12 @@ bool BlockDevInitializer::InitMiscDevice(const std::string& name) {
 
 ListenerAction BlockDevInitializer::HandleUevent(const Uevent& uevent,
                                                  std::set<std::string>* devices) {
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": Received uevent with subsystem: " << uevent.subsystem
+              << ", device name: " << uevent.device_name << ", path: " << uevent.path;
+
     // Ignore everything that is not a block device.
     if (uevent.subsystem != "block") {
+        LOG(DEBUG) << __PRETTY_FUNCTION__ << ": Ignoring non-block device";
         return ListenerAction::kContinue;
     }
 
@@ -81,39 +85,53 @@ ListenerAction BlockDevInitializer::HandleUevent(const Uevent& uevent,
     if (name.empty()) {
         size_t base_idx = uevent.path.rfind('/');
         if (base_idx == std::string::npos) {
+            LOG(WARNING) << __PRETTY_FUNCTION__ << ": Unable to extract partition name from path: " << uevent.path;
             return ListenerAction::kContinue;
         }
         name = uevent.path.substr(base_idx + 1);
     }
 
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": Extracted partition name: " << name;
+
     auto iter = devices->find(name);
     if (iter == devices->end()) {
+        LOG(DEBUG) << __PRETTY_FUNCTION__ << ": Partition name not found in devices set, checking alternate names.";
+
         auto partition_name = DeviceHandler::GetPartitionNameForDevice(uevent.device_name);
         if (!partition_name.empty()) {
+            LOG(INFO) << __PRETTY_FUNCTION__ << ": Using alternate partition name: " << partition_name;
             iter = devices->find(partition_name);
         }
         if (iter == devices->end()) {
+            LOG(WARNING) << __PRETTY_FUNCTION__ << ": Partition not found, ignoring uevent.";
             return ListenerAction::kContinue;
         }
     }
 
+    // Check if the device is an MMC (SD/eMMC) and if it's a valid boot device
     if (uevent.path.find("mmc") != uevent.path.npos) {
-        decltype (boot_devices_.begin()) boot_device_it;
-        for(boot_device_it = boot_devices_.begin(); boot_device_it != boot_devices_.end(); boot_device_it++) {
-            if (uevent.path.find(*boot_device_it) != uevent.path.npos) {
-                break;
-            }
-        }
+        LOG(INFO) << __PRETTY_FUNCTION__ << ": MMC device detected in path: " << uevent.path;
+
+        auto boot_device_it = std::find_if(boot_devices_.begin(), boot_devices_.end(),
+                                           [&](const std::string& boot_dev) {
+                                               return uevent.path.find(boot_dev) != std::string::npos;
+                                           });
+
         if (boot_device_it == boot_devices_.end()) {
+            LOG(WARNING) << __PRETTY_FUNCTION__ << ": MMC device is not a known boot device, ignoring.";
             return ListenerAction::kContinue;
         }
+        LOG(INFO) << __PRETTY_FUNCTION__ << ": MMC device is a valid boot device: " << *boot_device_it;
     }
 
-    LOG(VERBOSE) << __PRETTY_FUNCTION__ << ": found partition: " << name;
+    LOG(VERBOSE) << __PRETTY_FUNCTION__ << ": Found partition: " << name << ", processing uevent.";
 
     devices->erase(iter);
     device_handler_->HandleUevent(uevent);
-    return devices->empty() ? ListenerAction::kStop : ListenerAction::kContinue;
+
+    bool should_stop = devices->empty();
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": Returning " << (should_stop ? "ListenerAction::kStop" : "ListenerAction::kContinue");
+    return should_stop ? ListenerAction::kStop : ListenerAction::kContinue;
 }
 
 bool BlockDevInitializer::InitDevices(std::set<std::string> devices) {
