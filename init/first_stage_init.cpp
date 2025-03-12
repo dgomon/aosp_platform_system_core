@@ -506,6 +506,8 @@ int FirstStageMain(int argc, char** argv) {
     }
 
     LOG(INFO) << "Checkpoint 5";
+    LOG(INFO) << "cmdline: " << cmdline;
+    LOG(INFO) << "bootconfig: " << bootconfig;
 
     if (ForceNormalBoot(cmdline, bootconfig)) {
         mkdir("/first_stage_ramdisk", 0755);
