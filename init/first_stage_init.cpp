@@ -414,6 +414,8 @@ int FirstStageMain(int argc, char** argv) {
         }
     }
 
+    LOG(INFO) << "Checkpoint 1";
+
     auto old_root_dir = std::unique_ptr<DIR, decltype(&closedir)>{opendir("/"), closedir};
     if (!old_root_dir) {
         PLOG(ERROR) << "Could not opendir(\"/\"), not freeing ramdisk";
@@ -440,6 +442,7 @@ int FirstStageMain(int argc, char** argv) {
             LOG(FATAL) << "Failed to load kernel modules";
         }
     }
+    LOG(INFO) << "Checkpoint 2";
     if (module_count > 0) {
         auto module_elapse_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                 boot_clock::now() - module_start_time);
@@ -464,6 +467,8 @@ int FirstStageMain(int argc, char** argv) {
         StartConsole(cmdline);
     }
 
+    LOG(INFO) << "Checkpoint 3";
+
     if (access(kBootImageRamdiskProp, F_OK) == 0) {
         std::string dest = GetRamdiskPropForSecondStage();
         std::string dir = android::base::Dirname(dest);
@@ -477,6 +482,8 @@ int FirstStageMain(int argc, char** argv) {
         }
         LOG(INFO) << "Copied ramdisk prop to " << dest;
     }
+
+    LOG(INFO) << "Checkpoint 4";
 
     // If "/force_debuggable" is present, the second-stage init will use a userdebug
     // sepolicy and load adb_debug.prop to allow adb root, if the device is unlocked.
@@ -498,6 +505,8 @@ int FirstStageMain(int argc, char** argv) {
         setenv("INIT_FORCE_DEBUGGABLE", "true", 1);
     }
 
+    LOG(INFO) << "Checkpoint 5";
+
     if (ForceNormalBoot(cmdline, bootconfig)) {
         mkdir("/first_stage_ramdisk", 0755);
         PrepareSwitchRoot();
@@ -509,10 +518,14 @@ int FirstStageMain(int argc, char** argv) {
         SwitchRoot("/first_stage_ramdisk");
     }
 
+    LOG(INFO) << "Checkpoint 6";
+
     if (IsRecoveryMode()) {
         LOG(INFO) << "First stage mount skipped (recovery mode)";
     } else {
+        LOG(INFO) << "Not in recovery mode";
         if (!fsm) {
+            LOG(INFO) << "Calling CreateFirstStageMount, cmdline: " << cmdline;
             fsm = CreateFirstStageMount(cmdline);
         }
         if (!fsm) {
@@ -528,18 +541,23 @@ int FirstStageMain(int argc, char** argv) {
         }
     }
 
+    LOG(INFO) << "Checkpoint 7";
+
     struct stat new_root_info {};
     if (stat("/", &new_root_info) != 0) {
         PLOG(ERROR) << "Could not stat(\"/\"), not freeing ramdisk";
         old_root_dir.reset();
     }
 
+    LOG(INFO) << "Checkpoint 8";
     if (old_root_dir && old_root_info.st_dev != new_root_info.st_dev) {
         FreeRamdisk(old_root_dir.get(), old_root_info.st_dev);
     }
 
+    LOG(INFO) << "Checkpoint 9";
     SetInitAvbVersionInRecovery();
 
+    LOG(INFO) << "Checkpoint 10";
     setenv(kEnvFirstStageStartedAt, std::to_string(start_time.time_since_epoch().count()).c_str(),
            1);
 
