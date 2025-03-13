@@ -135,6 +135,7 @@ ListenerAction BlockDevInitializer::HandleUevent(const Uevent& uevent,
 }
 
 bool BlockDevInitializer::InitDevices(std::set<std::string> devices) {
+    LOG(INFO) << __PRETTY_FUNCTION__ << ": enter ";
     auto uevent_callback = [&, this](const Uevent& uevent) -> ListenerAction {
         return HandleUevent(uevent, &devices);
     };
