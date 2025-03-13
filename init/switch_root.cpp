@@ -75,18 +75,19 @@ void SwitchRoot(const std::string& new_root) {
     LOG(INFO) << "Switching root to '" << new_root << "'";
 
     for (const auto& mount_path : mounts) {
-        LOG(INFO) << "Checkpoint 5.4.1";
+        LOG(INFO) << "Checkpoint 5.4.1: pass";
         sleep(1);
-//        LOG(INFO) << "Moving mount at '" << mount_path << "' to '" << new_root + mount_path << "'";
-//        auto new_mount_path = new_root + mount_path;
-//        mkdir(new_mount_path.c_str(), 0755);
-//        LOG(INFO) << "Created directory '" << new_mount_path << "'";
-//        if (mount(mount_path.c_str(), new_mount_path.c_str(), nullptr, MS_MOVE, nullptr) != 0) {
-//            PLOG(FATAL) << "Unable to move mount at '" << mount_path << "' to "
-//                        << "'" << new_mount_path << "'";
-//        } else {
-//            LOG(INFO) << "Moved mount at '" << mount_path << "' to '" << new_mount_path << "'";
-//        }
+        LOG(INFO) << "Moving mount at '" << mount_path << "' to '" << new_root + mount_path << "'";
+        auto new_mount_path = new_root + mount_path;
+        mkdir(new_mount_path.c_str(), 0755);
+        LOG(INFO) << "Created directory '" << new_mount_path << "'";
+        sleep(1);
+        if (mount(mount_path.c_str(), new_mount_path.c_str(), nullptr, MS_MOVE, nullptr) != 0) {
+            PLOG(FATAL) << "Unable to move mount at '" << mount_path << "' to "
+                        << "'" << new_mount_path << "'";
+        } else {
+            LOG(INFO) << "Moved mount at '" << mount_path << "' to '" << new_mount_path << "'";
+        }
     }
    LOG(INFO) << "Checkpoint 5.4.2";
 
