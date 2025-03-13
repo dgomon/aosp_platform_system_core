@@ -239,6 +239,8 @@ Result<std::unique_ptr<FirstStageMount>> FirstStageMount::Create(const std::stri
 }
 
 bool FirstStageMountVBootV2::DoCreateDevices() {
+    fprintf(stderr, "DEBUG: first_stage_mount.cpp reached this point\n");
+
     LOG(ERROR) << __PRETTY_FUNCTION__ << ": enter";
     if (!InitDevices()) return false;
 
