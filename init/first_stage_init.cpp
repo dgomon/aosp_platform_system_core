@@ -450,11 +450,15 @@ int FirstStageMain(int argc, char** argv) {
 
     std::unique_ptr<FirstStageMount> fsm;
 
+    LOG(INFO) << "Checkpoint 4";
+
     bool created_devices = false;
     if (want_console == FirstStageConsoleParam::CONSOLE_ON_FAILURE) {
         if (!IsRecoveryMode()) {
+            LOG(INFO) << "Calling CreateFirstStageMount";
             fsm = CreateFirstStageMount(cmdline);
             if (fsm) {
+                LOG(INFO) << "Calling fsm->DoCreateDevices()";
                 created_devices = fsm->DoCreateDevices();
                 if (!created_devices) {
                     LOG(ERROR) << "Failed to create device nodes early";
