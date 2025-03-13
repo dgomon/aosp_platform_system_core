@@ -76,6 +76,7 @@ void SwitchRoot(const std::string& new_root) {
 
     for (const auto& mount_path : mounts) {
         LOG(INFO) << "Checkpoint 5.4.1";
+        sleep(1);
 //        LOG(INFO) << "Moving mount at '" << mount_path << "' to '" << new_root + mount_path << "'";
 //        auto new_mount_path = new_root + mount_path;
 //        mkdir(new_mount_path.c_str(), 0755);
