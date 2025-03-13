@@ -96,6 +96,8 @@ UeventListener::UeventListener(size_t uevent_socket_rcvbuf_size) {
 }
 
 ReadUeventResult UeventListener::ReadUevent(Uevent* uevent) const {
+    LOG(INFO) << "INIT UEVENT: " << uevent->action << " " << uevent->path;
+
     char msg[UEVENT_MSG_LEN + 2];
     int n = uevent_kernel_multicast_recv(device_fd_.get(), msg, UEVENT_MSG_LEN);
     if (n <= 0) {

@@ -530,6 +530,9 @@ void DeviceHandler::HandleAshmemUevent(const Uevent& uevent) {
 }
 
 void DeviceHandler::HandleUevent(const Uevent& uevent) {
+  LOG(INFO) << "UEVENTD: " << uevent.subsystem << " " << uevent.action
+                << " " << uevent.path;
+
   if (uevent.action == "add" || uevent.action == "change" ||
       uevent.action == "bind" || uevent.action == "online") {
     FixupSysPermissions(uevent.path, uevent.subsystem);
