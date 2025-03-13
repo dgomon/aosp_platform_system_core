@@ -35,7 +35,7 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/file.h>
-#include <android-base/logging.h>
+    #include <android-base/logging.h>
 #include <android-base/stringprintf.h>
 #include <modprobe/modprobe.h>
 #include <private/android_filesystem_config.h>
@@ -303,8 +303,10 @@ static BootMode GetBootMode(const std::string& cmdline, const std::string& bootc
 }
 
 static std::unique_ptr<FirstStageMount> CreateFirstStageMount(const std::string& cmdline) {
+    LOG(INFO) << "CreateFirstStageMount: enter";
     auto ret = FirstStageMount::Create(cmdline);
     if (ret.ok()) {
+        LOG(INFO) << "CreateFirstStageMount: FirstStageMount::Create(cmdline) ok";
         return std::move(*ret);
     } else {
         LOG(ERROR) << "Failed to create FirstStageMount : " << ret.error();
